@@ -1,0 +1,764 @@
+/* ========================================
+   HBN 慢一点远一点 — H5 Landing Page
+   Design: Warm, slow, meditative luxury
+   ======================================== */
+
+/* --- Reset & Base --- */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --bg-cream: #F5EDE3;
+  --bg-deep: #2C1810;
+  --gold: #C9A96E;
+  --gold-light: #D4B87A;
+  --warm-brown: #8B6F5E;
+  --text-primary: #2C1810;
+  --text-secondary: #8B7D72;
+  --sage-green: #8B9A7B;
+  --rose-muted: #C9A087;
+  --ease-soft: cubic-bezier(0.25, 0.1, 0.25, 1.0);
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica Neue', 'Microsoft YaHei', sans-serif;
+  background: var(--bg-cream);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  line-height: 1.8;
+}
+
+/* --- Serif Font Import --- */
+@import url('https://fonts.googleapis.cn/css2?family=Noto+Serif+SC:wght@300;400;500;600;700&display=swap');
+
+.font-serif {
+  font-family: 'Noto Serif SC', 'Songti SC', 'SimSun', serif;
+}
+
+/* --- Section Base --- */
+.section {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 24px;
+  overflow: hidden;
+}
+
+/* --- Scroll Reveal --- */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 1.2s var(--ease-soft), transform 1.2s var(--ease-soft);
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.reveal-delay-1 { transition-delay: 0.2s; }
+.reveal-delay-2 { transition-delay: 0.4s; }
+.reveal-delay-3 { transition-delay: 0.6s; }
+.reveal-delay-4 { transition-delay: 0.8s; }
+
+/* ========================================
+   Section 1: Hero
+   ======================================== */
+.hero {
+  background: linear-gradient(
+    180deg,
+    #F5EDE3 0%,
+    #EDE0D0 30%,
+    #E4D3BE 60%,
+    #D9C5A8 100%
+  );
+  min-height: 100vh;
+  min-height: 100dvh;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0 24px;
+}
+
+/* Floating particles */
+.particles {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: radial-gradient(circle, var(--gold) 0%, transparent 70%);
+  border-radius: 50%;
+  opacity: 0;
+  animation: float-particle var(--duration) var(--delay) infinite;
+}
+
+@keyframes float-particle {
+  0% {
+    opacity: 0;
+    transform: translateY(0) translateX(0);
+  }
+  20% {
+    opacity: 0.6;
+  }
+  80% {
+    opacity: 0.3;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-100vh) translateX(var(--drift));
+  }
+}
+
+/* Thin circle decoration */
+.hero-circle {
+  position: absolute;
+  width: 280px;
+  height: 280px;
+  border: 0.5px solid rgba(201, 169, 110, 0.2);
+  border-radius: 50%;
+  animation: breathe 8s var(--ease-soft) infinite;
+}
+
+.hero-circle-2 {
+  width: 360px;
+  height: 360px;
+  border-color: rgba(201, 169, 110, 0.1);
+  animation-delay: -3s;
+  animation-duration: 10s;
+}
+
+@keyframes breathe {
+  0%, 100% { transform: scale(1); opacity: 0.5; }
+  50% { transform: scale(1.05); opacity: 1; }
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+}
+
+.hero-brand {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 16px;
+  font-weight: 300;
+  letter-spacing: 12px;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: 40px;
+  opacity: 0;
+  animation: fade-in 2s 0.5s var(--ease-soft) forwards;
+}
+
+.hero-title {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 42px;
+  font-weight: 300;
+  letter-spacing: 8px;
+  color: var(--text-primary);
+  line-height: 1.4;
+  margin-bottom: 16px;
+  opacity: 0;
+  animation: fade-in 2s 1s var(--ease-soft) forwards;
+}
+
+.hero-subtitle {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 18px;
+  font-weight: 300;
+  letter-spacing: 6px;
+  color: var(--text-secondary);
+  margin-bottom: 60px;
+  opacity: 0;
+  animation: fade-in 2s 1.5s var(--ease-soft) forwards;
+}
+
+.hero-divider {
+  width: 40px;
+  height: 0.5px;
+  background: var(--gold);
+  margin: 0 auto;
+  opacity: 0;
+  animation: fade-in 2s 2s var(--ease-soft) forwards;
+}
+
+.hero-scroll-hint {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  opacity: 0;
+  animation: fade-in 2s 2.5s var(--ease-soft) forwards;
+  z-index: 2;
+}
+
+.hero-scroll-hint span {
+  font-size: 11px;
+  letter-spacing: 4px;
+  color: var(--text-secondary);
+}
+
+.scroll-line {
+  width: 0.5px;
+  height: 40px;
+  background: linear-gradient(to bottom, var(--gold), transparent);
+  animation: scroll-pulse 2s var(--ease-soft) infinite;
+}
+
+@keyframes scroll-pulse {
+  0%, 100% { opacity: 0.3; transform: scaleY(1); }
+  50% { opacity: 1; transform: scaleY(1.2); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ========================================
+   Section 2: Philosophy
+   ======================================== */
+.philosophy {
+  background: var(--bg-cream);
+  text-align: center;
+  padding: 100px 32px;
+}
+
+.philosophy-quote {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 24px;
+  font-weight: 300;
+  line-height: 2;
+  color: var(--text-primary);
+  letter-spacing: 3px;
+  max-width: 300px;
+  margin: 0 auto;
+}
+
+.philosophy-author {
+  font-size: 13px;
+  color: var(--text-secondary);
+  letter-spacing: 4px;
+  margin-top: 40px;
+}
+
+.philosophy-line {
+  width: 60px;
+  height: 0.5px;
+  background: var(--gold);
+  margin: 50px auto 0;
+  opacity: 0.6;
+}
+
+/* ========================================
+   Section 3: Near & Far Contrast
+   ======================================== */
+.contrast {
+  background: linear-gradient(180deg, var(--bg-cream) 0%, #EDE0D0 100%);
+  padding: 80px 0;
+}
+
+.contrast-label {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 12px;
+  letter-spacing: 8px;
+  color: var(--gold);
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.contrast-pair {
+  width: 100%;
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+.contrast-card {
+  position: relative;
+  width: calc(100% - 48px);
+  margin: 0 auto 32px;
+  border-radius: 2px;
+  overflow: hidden;
+  aspect-ratio: 4/3;
+}
+
+.contrast-card-inner {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-start;
+  padding: 24px;
+}
+
+.contrast-near {
+  background:
+    linear-gradient(135deg, #D4B87A 0%, #C9A087 40%, #A08060 100%);
+}
+
+.contrast-far {
+  background:
+    linear-gradient(135deg, #8B9A7B 0%, #B8C4A0 40%, #D9D0B8 100%);
+}
+
+.contrast-card-text {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 20px;
+  font-weight: 300;
+  letter-spacing: 4px;
+  color: rgba(255,255,255,0.9);
+  text-shadow: 0 1px 8px rgba(0,0,0,0.2);
+}
+
+.contrast-card-sub {
+  font-size: 12px;
+  letter-spacing: 3px;
+  color: rgba(255,255,255,0.6);
+  margin-top: 6px;
+}
+
+.contrast-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin: 0 auto 32px;
+  width: calc(100% - 48px);
+}
+
+.contrast-divider-line {
+  flex: 1;
+  height: 0.5px;
+  background: var(--gold);
+  opacity: 0.3;
+}
+
+.contrast-divider-text {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 14px;
+  letter-spacing: 4px;
+  color: var(--text-secondary);
+}
+
+/* ========================================
+   Section 4: Interactive Experience
+   ======================================== */
+.interactive {
+  background: linear-gradient(180deg, #EDE0D0 0%, var(--bg-cream) 50%, #EDE0D0 100%);
+  padding: 80px 24px;
+  text-align: center;
+}
+
+.interactive-label {
+  font-size: 12px;
+  letter-spacing: 8px;
+  color: var(--gold);
+  margin-bottom: 12px;
+}
+
+.interactive-subtitle {
+  font-size: 14px;
+  letter-spacing: 3px;
+  color: var(--text-secondary);
+  margin-bottom: 48px;
+}
+
+.game-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 340px;
+  margin: 0 auto;
+}
+
+.game-card {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 24px 28px;
+  background: rgba(255,255,255,0.5);
+  border: 0.5px solid rgba(201, 169, 110, 0.2);
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.6s var(--ease-soft);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.game-card:active {
+  background: rgba(201, 169, 110, 0.08);
+  transform: scale(0.98);
+}
+
+.game-card-icon {
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+}
+
+.game-card-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.game-card-title {
+  font-size: 20px;
+  font-weight: 400;
+  letter-spacing: 4px;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.game-card-desc {
+  font-size: 12px;
+  letter-spacing: 2px;
+  color: var(--text-secondary);
+}
+
+/* ========================================
+   Section 5: Brand Story / Timeline
+   ======================================== */
+.story {
+  background: var(--bg-deep);
+  color: #F5EDE3;
+  padding: 100px 32px;
+  position: relative;
+}
+
+.story::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 120px;
+  background: linear-gradient(to bottom, #EDE0D0, var(--bg-deep));
+  pointer-events: none;
+}
+
+.story-title {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 12px;
+  letter-spacing: 8px;
+  color: var(--gold);
+  text-align: center;
+  margin-bottom: 60px;
+  position: relative;
+}
+
+.timeline {
+  position: relative;
+  max-width: 320px;
+  margin: 0 auto;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 12px;
+  top: 0;
+  bottom: 0;
+  width: 0.5px;
+  background: linear-gradient(to bottom, transparent, var(--gold), var(--gold), transparent);
+}
+
+.timeline-item {
+  position: relative;
+  padding-left: 44px;
+  margin-bottom: 48px;
+}
+
+.timeline-dot {
+  position: absolute;
+  left: 8px;
+  top: 8px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border: 1px solid var(--gold);
+  background: var(--bg-deep);
+}
+
+.timeline-dot.filled {
+  background: var(--gold);
+}
+
+.timeline-item-title {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 18px;
+  font-weight: 400;
+  letter-spacing: 3px;
+  color: var(--gold-light);
+  margin-bottom: 10px;
+}
+
+.timeline-item-desc {
+  font-size: 14px;
+  line-height: 1.9;
+  color: rgba(245, 237, 227, 0.65);
+  letter-spacing: 1px;
+}
+
+/* ========================================
+   Section 5: CTA
+   ======================================== */
+.cta {
+  background: linear-gradient(180deg, var(--bg-deep) 0%, #1A0E08 100%);
+  color: #F5EDE3;
+  text-align: center;
+  padding: 100px 32px 80px;
+}
+
+.cta-title {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 28px;
+  font-weight: 300;
+  letter-spacing: 6px;
+  margin-bottom: 12px;
+}
+
+.cta-subtitle {
+  font-size: 14px;
+  letter-spacing: 3px;
+  color: rgba(245, 237, 227, 0.5);
+  margin-bottom: 50px;
+}
+
+.qr-wrapper {
+  width: 180px;
+  height: 180px;
+  margin: 0 auto 30px;
+  background: #FFFFFF;
+  border-radius: 4px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.qr-wrapper canvas,
+.qr-wrapper img {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.cta-hint {
+  font-size: 12px;
+  letter-spacing: 2px;
+  color: rgba(245, 237, 227, 0.4);
+  margin-bottom: 60px;
+}
+
+.cta-brand {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 14px;
+  letter-spacing: 10px;
+  color: var(--gold);
+  opacity: 0.6;
+}
+
+.cta-slogan {
+  font-size: 11px;
+  letter-spacing: 4px;
+  color: rgba(245, 237, 227, 0.3);
+  margin-top: 12px;
+}
+
+/* --- Share Button (WeChat) --- */
+.share-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 32px;
+  border: 0.5px solid var(--gold);
+  background: transparent;
+  color: var(--gold);
+  font-family: 'Noto Serif SC', serif;
+  font-size: 13px;
+  letter-spacing: 4px;
+  cursor: pointer;
+  transition: all 0.6s var(--ease-soft);
+  margin-bottom: 50px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.share-btn:active {
+  background: rgba(201, 169, 110, 0.1);
+}
+
+.share-btn svg {
+  width: 16px;
+  height: 16px;
+  stroke: var(--gold);
+}
+
+/* --- WeChat Share Modal --- */
+.share-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 1000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.share-modal.active {
+  display: flex;
+}
+
+.share-modal-content {
+  background: var(--bg-cream);
+  border-radius: 4px;
+  padding: 40px 32px;
+  text-align: center;
+  max-width: 300px;
+  width: 100%;
+}
+
+.share-modal-title {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 18px;
+  letter-spacing: 3px;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+}
+
+.share-modal-text {
+  font-size: 13px;
+  line-height: 1.8;
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+}
+
+.share-modal-link {
+  font-size: 12px;
+  color: var(--gold);
+  word-break: break-all;
+  padding: 12px;
+  background: rgba(201, 169, 110, 0.08);
+  border-radius: 2px;
+  margin-bottom: 24px;
+  user-select: all;
+  -webkit-user-select: all;
+}
+
+.share-modal-close {
+  padding: 10px 32px;
+  border: 0.5px solid var(--text-secondary);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 13px;
+  letter-spacing: 2px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* --- Toast --- */
+.toast {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(44, 24, 16, 0.85);
+  color: #F5EDE3;
+  padding: 14px 28px;
+  border-radius: 2px;
+  font-size: 13px;
+  letter-spacing: 2px;
+  z-index: 2000;
+  opacity: 0;
+  transition: opacity 0.4s var(--ease-soft);
+  pointer-events: none;
+}
+
+.toast.show {
+  opacity: 1;
+}
+
+/* --- Link Display Section --- */
+.link-section {
+  background: linear-gradient(180deg, #1A0E08, #0D0705);
+  text-align: center;
+  padding: 40px 32px 60px;
+}
+
+.link-label {
+  font-size: 11px;
+  letter-spacing: 4px;
+  color: rgba(201, 169, 110, 0.5);
+  margin-bottom: 16px;
+}
+
+.link-url {
+  font-size: 11px;
+  color: rgba(245, 237, 227, 0.35);
+  word-break: break-all;
+  line-height: 1.8;
+  padding: 0 16px;
+}
+
+/* --- Utility --- */
+.mt-20 { margin-top: 20px; }
+.mt-40 { margin-top: 40px; }
+.mb-20 { margin-bottom: 20px; }
+.text-center { text-align: center; }
+
+/* --- Responsive fine-tuning --- */
+@media (min-width: 420px) {
+  .hero-title {
+    font-size: 52px;
+    letter-spacing: 12px;
+  }
+  .philosophy-quote {
+    font-size: 28px;
+  }
+  .cta-title {
+    font-size: 34px;
+  }
+}
+
+/* 隐藏扣子编程底部水印 */
+div[class*="watermark"],
+div[class*="Watermark"],
+div[data-testid*="watermark"] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  height: 0 !important;
+  overflow: hidden !important;
+}
