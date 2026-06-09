@@ -1,0 +1,440 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+  <meta name="format-detection" content="telephone=no" />
+  <title>慢慢护 · 眸光觉醒 — HBN</title>
+  <link rel="stylesheet" href="../styles/main.css" />
+  <style>
+    body { background:#F5EDE3; margin:0; overflow:hidden; }
+    .game-page { min-height:100vh; min-height:100dvh; display:flex; flex-direction:column; }
+
+    /* Header */
+    .game-header { padding:16px 20px; display:flex; align-items:center; justify-content:space-between; z-index:10; }
+    .game-back { display:flex; align-items:center; gap:6px; text-decoration:none; color:#8B7D72; font-size:13px; letter-spacing:2px; -webkit-tap-highlight-color:transparent; }
+    .game-back svg { width:18px; height:18px; stroke:#8B7D72; }
+    .game-header-title { font-family:'Noto Serif SC',serif; font-size:14px; letter-spacing:4px; color:#C9A96E; }
+    .game-score-display { font-size:13px; color:#8B7D72; letter-spacing:2px; }
+    .game-score-display em { font-style:normal; color:#C9A96E; font-size:18px; }
+
+    /* Product bar */
+    .product-bar { display:flex; align-items:center; gap:12px; padding:4px 20px 12px; }
+    .product-bar img { width:36px; height:36px; object-fit:contain; border-radius:3px; }
+    .product-bar-info .p-name { font-family:'Noto Serif SC',serif; font-size:13px; letter-spacing:2px; color:#2C1810; }
+    .product-bar-info .p-sub { font-size:10px; letter-spacing:1px; color:#8B7D72; margin-top:2px; }
+
+    /* Canvas area */
+    .canvas-wrap { flex:1; position:relative; overflow:hidden; }
+    .canvas-wrap canvas { display:block; width:100%; height:100%; }
+
+    /* Eye area overlay info */
+    .eye-info {
+      position:absolute; top:12px; left:50%; transform:translateX(-50%);
+      text-align:center; z-index:5; pointer-events:none;
+    }
+    .eye-info .dark-level { font-family:'Noto Serif SC',serif; font-size:13px; letter-spacing:3px; color:#8B7D72; }
+    .eye-info .dark-bar { width:120px; height:3px; background:rgba(139,111,94,0.15); border-radius:2px; margin:6px auto 0; overflow:hidden; }
+    .eye-info .dark-fill { height:100%; background:#8B6F5E; border-radius:2px; transition:width 0.6s cubic-bezier(0.25,0.1,0.25,1); }
+
+    /* Ingredient tray */
+    .tray {
+      padding:12px 20px 24px; display:flex; align-items:center; justify-content:center; gap:10px;
+      background:linear-gradient(transparent, rgba(245,237,227,0.95) 30%); z-index:10;
+    }
+    .tray-item {
+      width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+      font-size:10px; letter-spacing:1px; text-align:center; line-height:1.3;
+      border:0.5px solid rgba(201,169,110,0.3); cursor:pointer;
+      transition:all 0.3s cubic-bezier(0.25,0.1,0.25,1); -webkit-tap-highlight-color:transparent;
+    }
+    .tray-item:active { transform:scale(0.92); }
+    .tray-item.selected { border-color:#C9A96E; background:rgba(201,169,110,0.1); box-shadow:0 0 12px rgba(201,169,110,0.2); }
+    .tray-item .ing-icon { font-size:18px; display:block; margin-bottom:2px; }
+    .tray-item .ing-label { display:block; }
+
+    .t1 { background:rgba(139,90,43,0.08); color:#8B6F5E; }
+    .t2 { background:rgba(201,169,110,0.08); color:#C9A96E; }
+    .t3 { background:rgba(139,154,123,0.08); color:#6B7B5E; }
+    .t4 { background:rgba(180,140,100,0.08); color:#8B7D72; }
+
+    /* Hint */
+    .tap-hint {
+      position:absolute; bottom:100px; left:50%; transform:translateX(-50%);
+      font-family:'Noto Serif SC',serif; font-size:12px; letter-spacing:3px; color:#8B7D72;
+      pointer-events:none; opacity:0.8;
+      animation:hint-pulse 2s cubic-bezier(0.25,0.1,0.25,1) infinite;
+    }
+    @keyframes hint-pulse { 0%,100%{opacity:0.5;} 50%{opacity:0.9;} }
+
+    /* Result popup */
+    .result-card {
+      position:fixed; inset:0; background:rgba(245,237,227,0.97); z-index:100;
+      display:none; flex-direction:column; align-items:center; justify-content:center; padding:32px; text-align:center;
+    }
+    .result-card.active { display:flex; }
+    .result-icon { font-size:36px; color:#C9A96E; margin-bottom:20px; }
+    .result-title { font-family:'Noto Serif SC',serif; font-size:26px; font-weight:300; letter-spacing:6px; color:#2C1810; margin-bottom:12px; }
+    .result-sub { font-size:13px; letter-spacing:2px; color:#8B7D72; line-height:2; margin-bottom:8px; }
+    .result-score { font-size:14px; letter-spacing:2px; color:#C9A96E; margin-bottom:32px; }
+    .result-product { max-width:180px; max-height:120px; object-fit:contain; border-radius:4px; margin-bottom:28px; }
+    .result-btn {
+      padding:14px 44px; border:0.5px solid #C9A96E; background:transparent; color:#C9A96E;
+      font-family:'Noto Serif SC',serif; font-size:14px; letter-spacing:4px; cursor:pointer;
+      text-decoration:none; transition:all 0.5s cubic-bezier(0.25,0.1,0.25,1); -webkit-tap-highlight-color:transparent;
+    }
+    .result-btn:active { background:rgba(201,169,110,0.1); }
+    .result-btn-secondary { margin-top:14px; font-size:12px; letter-spacing:3px; color:#8B7D72; border-color:#8B7D72; }
+  </style>
+</head>
+<body>
+<div class="game-page">
+  <div class="game-header">
+    <a href="../" class="game-back">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+      返回
+    </a>
+    <span class="game-header-title font-serif">慢慢护</span>
+    <span class="game-score-display"><em id="scoreNum">0</em> 分</span>
+  </div>
+
+  <div class="product-bar">
+    <img src="../public/products/eye-before.jpg" alt="咖啡因眼霜" />
+    <div class="product-bar-info">
+      <div class="p-name font-serif">咖啡因紧致修护眼霜 3.0</div>
+      <div class="p-sub">眼部加浓冰美式 · 焕亮淡纹</div>
+    </div>
+  </div>
+
+  <div class="canvas-wrap">
+    <canvas id="eyeCanvas"></canvas>
+    <div class="eye-info">
+      <div class="dark-level font-serif" id="darkLevel">黑眼圈浓度 80%</div>
+      <div class="dark-bar"><div class="dark-fill" id="darkFill" style="width:80%"></div></div>
+    </div>
+    <div class="tap-hint font-serif" id="tapHint">选择成分 · 点击眼周护理</div>
+  </div>
+
+  <div class="tray" id="tray">
+    <div class="tray-item t1" data-type="caffeine">
+      <span class="ing-icon">☕</span>
+      <span class="ing-label">咖啡因</span>
+    </div>
+    <div class="tray-item t2" data-type="k2">
+      <span class="ing-icon">◆</span>
+      <span class="ing-label">维K2</span>
+    </div>
+    <div class="tray-item t3" data-type="ergo">
+      <span class="ing-icon">❋</span>
+      <span class="ing-label">麦角硫因</span>
+    </div>
+    <div class="tray-item t4" data-type="peptide">
+      <span class="ing-icon">△</span>
+      <span class="ing-label">胶原肽</span>
+    </div>
+  </div>
+</div>
+
+<!-- Result -->
+<div class="result-card" id="resultCard">
+  <div class="result-icon">◇</div>
+  <div class="result-title font-serif">眸光觉醒</div>
+  <div class="result-sub" id="resultMsg"></div>
+  <div class="result-score" id="resultScore"></div>
+  <img src="../public/products/eye-after.jpg" alt="咖啡因眼霜" class="result-product" />
+  <button class="result-btn font-serif" id="retryBtn">再来一次</button>
+  <a href="../" class="result-btn result-btn-secondary font-serif">返回首页</a>
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  // Fix all "../" links to point to correct home URL
+  var basePath = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1);
+  var homePath = basePath.substring(0, basePath.lastIndexOf('/') + 1) || './';
+  var links = document.querySelectorAll('a[href="../"], a[href="../index.html"]');
+  for (var i = 0; i < links.length; i++) {
+    links[i].href = homePath;
+  }
+
+  var canvas = document.getElementById('eyeCanvas');
+  var ctx = canvas.getContext('2d');
+  var dpr = window.devicePixelRatio || 1;
+  var W, H;
+
+  // State
+  var darkness = 80; // 0-100, lower = better
+  var score = 0;
+  var selectedType = null;
+  var particles = [];
+  var ripples = [];
+  var darkCircles = [];
+  var eyeCenter = { x:0, y:0 };
+  var eyeW = 0, eyeH = 0;
+
+  // Ingredient effects
+  var ING_MAP = {
+    caffeine: { power: 12, label:'咖啡因淡圈', color:'#8B6F5E' },
+    k2:       { power: 10, label:'维K2抗青紫', color:'#6B7B8E' },
+    ergo:     { power: 8,  label:'麦角硫因抗氧', color:'#8B9A7B' },
+    peptide:  { power: 15, label:'胶原肽充盈', color:'#C9A96E' }
+  };
+
+  function resize() {
+    var rect = canvas.parentElement.getBoundingClientRect();
+    W = rect.width; H = rect.height;
+    canvas.width = W * dpr; canvas.height = H * dpr;
+    canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    eyeCenter.x = W / 2;
+    eyeCenter.y = H * 0.48;
+    eyeW = Math.min(W * 0.7, 240);
+    eyeH = Math.min(H * 0.22, 80);
+
+    // Generate dark circle patches
+    generateDarkCircles();
+  }
+
+  function generateDarkCircles() {
+    darkCircles = [];
+    var count = 6 + Math.floor(Math.random() * 4);
+    for (var i = 0; i < count; i++) {
+      darkCircles.push({
+        x: eyeCenter.x + (Math.random() - 0.5) * eyeW * 0.7,
+        y: eyeCenter.y + (Math.random() - 0.3) * eyeH * 1.5,
+        r: 8 + Math.random() * 18,
+        opacity: 0.3 + Math.random() * 0.4
+      });
+    }
+  }
+
+  function drawEye() {
+    ctx.clearRect(0, 0, W, H);
+
+    // Subtle background gradient
+    var bgGrad = ctx.createRadialGradient(eyeCenter.x, eyeCenter.y, 10, eyeCenter.x, eyeCenter.y, Math.max(W, H) * 0.7);
+    bgGrad.addColorStop(0, 'rgba(245,237,227,1)');
+    bgGrad.addColorStop(1, 'rgba(235,225,213,1)');
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, W, H);
+
+    // Dark circles (proportional to darkness level)
+    var darkFactor = darkness / 100;
+    for (var i = 0; i < darkCircles.length; i++) {
+      var dc = darkCircles[i];
+      var dcOpacity = dc.opacity * darkFactor;
+      if (dcOpacity < 0.02) continue;
+      var grad = ctx.createRadialGradient(dc.x, dc.y, 0, dc.x, dc.y, dc.r);
+      grad.addColorStop(0, 'rgba(100,70,50,' + dcOpacity + ')');
+      grad.addColorStop(1, 'rgba(100,70,50,0)');
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(dc.x, dc.y, dc.r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Eye outline (almond shape)
+    ctx.save();
+    ctx.translate(eyeCenter.x, eyeCenter.y);
+
+    // Eye white
+    ctx.beginPath();
+    ctx.ellipse(0, 0, eyeW / 2, eyeH / 2, 0, 0, Math.PI * 2);
+    var eyeWhiteGrad = ctx.createRadialGradient(0, -5, 2, 0, 0, eyeH / 2);
+    eyeWhiteGrad.addColorStop(0, 'rgba(255,252,248,0.95)');
+    eyeWhiteGrad.addColorStop(1, 'rgba(248,242,234,0.9)');
+    ctx.fillStyle = eyeWhiteGrad;
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(139,111,94,0.2)';
+    ctx.lineWidth = 0.5;
+    ctx.stroke();
+
+    // Upper eyelid line
+    ctx.beginPath();
+    ctx.ellipse(0, -2, eyeW / 2 + 2, eyeH / 2 + 4, 0, Math.PI + 0.2, -0.2);
+    ctx.strokeStyle = 'rgba(139,111,94,0.35)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // Lower eyelid line
+    ctx.beginPath();
+    ctx.ellipse(0, 2, eyeW / 2 - 4, eyeH / 2 + 2, 0, 0.2, Math.PI - 0.2);
+    ctx.strokeStyle = 'rgba(139,111,94,0.2)';
+    ctx.lineWidth = 0.5;
+    ctx.stroke();
+
+    // Iris
+    var irisR = eyeH * 0.35;
+    var irisGrad = ctx.createRadialGradient(0, 0, irisR * 0.2, 0, 0, irisR);
+    irisGrad.addColorStop(0, 'rgba(139,111,94,0.9)');
+    irisGrad.addColorStop(0.6, 'rgba(160,130,100,0.7)');
+    irisGrad.addColorStop(1, 'rgba(180,155,125,0.5)');
+    ctx.beginPath();
+    ctx.arc(0, 0, irisR, 0, Math.PI * 2);
+    ctx.fillStyle = irisGrad;
+    ctx.fill();
+
+    // Pupil
+    ctx.beginPath();
+    ctx.arc(0, 0, irisR * 0.4, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(44,24,16,0.85)';
+    ctx.fill();
+
+    // Highlight
+    ctx.beginPath();
+    ctx.arc(-irisR * 0.25, -irisR * 0.25, irisR * 0.15, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(255,255,255,0.5)';
+    ctx.fill();
+
+    ctx.restore();
+
+    // Ripples
+    for (var r = ripples.length - 1; r >= 0; r--) {
+      var rp = ripples[r];
+      rp.radius += 1.5;
+      rp.opacity -= 0.015;
+      if (rp.opacity <= 0) { ripples.splice(r, 1); continue; }
+      ctx.beginPath();
+      ctx.arc(rp.x, rp.y, rp.radius, 0, Math.PI * 2);
+      ctx.strokeStyle = rp.color.replace('1)', rp.opacity + ')');
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+
+    // Particles
+    for (var p = particles.length - 1; p >= 0; p--) {
+      var pt = particles[p];
+      pt.x += pt.vx;
+      pt.y += pt.vy;
+      pt.life -= 0.02;
+      if (pt.life <= 0) { particles.splice(p, 1); continue; }
+      ctx.beginPath();
+      ctx.arc(pt.x, pt.y, pt.size * pt.life, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(201,169,110,' + (pt.life * 0.6) + ')';
+      ctx.fill();
+    }
+
+    requestAnimationFrame(drawEye);
+  }
+
+  function applyIngredient(x, y) {
+    if (!selectedType || darkness <= 0) return;
+    var ing = ING_MAP[selectedType];
+    if (!ing) return;
+
+    // Check if within eye area (generous hit zone)
+    var dx = x - eyeCenter.x;
+    var dy = y - eyeCenter.y;
+    var inZone = (dx * dx) / (eyeW * eyeW / 4 + 2000) + (dy * dy) / (eyeH * eyeH / 4 + 2000) < 1.8;
+    if (!inZone) return;
+
+    // Reduce darkness
+    var reduction = ing.power;
+    darkness = Math.max(0, darkness - reduction);
+    score += reduction * 2;
+
+    // Update UI
+    document.getElementById('scoreNum').textContent = score;
+    document.getElementById('darkLevel').textContent = '黑眼圈浓度 ' + darkness + '%';
+    document.getElementById('darkFill').style.width = darkness + '%';
+
+    // Ripple effect
+    ripples.push({ x:x, y:y, radius:5, opacity:0.6, color:'rgba(201,169,110,1)' });
+
+    // Particles
+    for (var i = 0; i < 8; i++) {
+      var angle = Math.random() * Math.PI * 2;
+      var speed = 0.5 + Math.random() * 1.5;
+      particles.push({
+        x:x, y:y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        size: 2 + Math.random() * 3,
+        life: 1
+      });
+    }
+
+    // Fade some dark circles
+    for (var d = 0; d < darkCircles.length; d++) {
+      var dist = Math.sqrt(Math.pow(darkCircles[d].x - x, 2) + Math.pow(darkCircles[d].y - y, 2));
+      if (dist < 60) {
+        darkCircles[d].opacity = Math.max(0, darkCircles[d].opacity - 0.15);
+      }
+    }
+
+    // Hide hint
+    document.getElementById('tapHint').style.display = 'none';
+
+    // Check win
+    if (darkness <= 5) {
+      setTimeout(showResult, 600);
+    }
+  }
+
+  function showResult() {
+    var msg = '';
+    if (darkness <= 5) msg = '眸光如初，慢护终见光';
+    else msg = '继续慢慢呵护，光终会来';
+    document.getElementById('resultMsg').textContent = msg;
+    document.getElementById('resultScore').textContent = '黑眼圈浓度 ' + darkness + '% · 得分 ' + score;
+    document.getElementById('resultCard').classList.add('active');
+  }
+
+  function reset() {
+    darkness = 80; score = 0; selectedType = null;
+    particles = []; ripples = [];
+    document.getElementById('scoreNum').textContent = '0';
+    document.getElementById('darkLevel').textContent = '黑眼圈浓度 80%';
+    document.getElementById('darkFill').style.width = '80%';
+    document.getElementById('tapHint').style.display = '';
+    document.getElementById('resultCard').classList.remove('active');
+
+    // Deselect all
+    var items = document.querySelectorAll('.tray-item');
+    for (var i = 0; i < items.length; i++) items[i].classList.remove('selected');
+
+    generateDarkCircles();
+  }
+
+  // Tray selection
+  var trayItems = document.querySelectorAll('.tray-item');
+  for (var i = 0; i < trayItems.length; i++) {
+    (function(item){
+      item.addEventListener('click', function(){
+        // Deselect others
+        for (var j = 0; j < trayItems.length; j++) trayItems[j].classList.remove('selected');
+        item.classList.add('selected');
+        selectedType = item.getAttribute('data-type');
+      });
+    })(trayItems[i]);
+  }
+
+  // Canvas tap
+  function getPos(e) {
+    var rect = canvas.getBoundingClientRect();
+    var touch = e.touches ? e.touches[0] : e;
+    return { x: touch.clientX - rect.left, y: touch.clientY - rect.top };
+  }
+
+  canvas.addEventListener('click', function(e){
+    var pos = getPos(e);
+    applyIngredient(pos.x, pos.y);
+  });
+  canvas.addEventListener('touchstart', function(e){
+    e.preventDefault();
+    var pos = getPos(e);
+    applyIngredient(pos.x, pos.y);
+  }, { passive: false });
+
+  document.getElementById('retryBtn').addEventListener('click', reset);
+
+  // Init
+  window.addEventListener('resize', resize);
+  resize();
+  drawEye();
+})();
+</script>
+</body>
+</html>
